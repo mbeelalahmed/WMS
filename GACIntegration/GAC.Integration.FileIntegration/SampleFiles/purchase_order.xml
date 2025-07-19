@@ -1,0 +1,11 @@
+﻿<PurchaseOrder>
+  <OrderId>1A2B3C4D-1234-5678-9ABC-DEF012345678  </OrderId>
+  <ProcessingDate>2025-07-17T15:30:00Z</ProcessingDate>
+  <Customer>7E256FEC-F773-4388-A1AD-76F3B71EF4D7</Customer>
+  <Products>
+    <Product>
+      <Key>BEF98328-8BBF-46A1-8449-E3DCD2D6A2BF</Key>
+      <Value>3</Value>
+    </Product>
+  </Products>
+</PurchaseOrder>
