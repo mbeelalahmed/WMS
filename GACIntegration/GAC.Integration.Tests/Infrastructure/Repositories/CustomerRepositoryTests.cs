@@ -60,5 +60,74 @@ namespace GAC.Integration.Tests.Infrastructure.Repositories
             result.Should().Contain(c => c.Name == "Customer A");
             result.Should().Contain(c => c.Name == "Customer B");
         }
+
+        [Fact]
+        public async Task GetByIdAsync_Should_Return_Customer_When_Found()
+        {
+            var context = CreateDbContext();
+            var customer = new Customer
+            {
+                Id = Guid.NewGuid(),
+                Name = "Existing Customer",
+                Address = "Abu Dhabi"
+            };
+            context.Customers.Add(customer);
+            await context.SaveChangesAsync();
+
+            var repository = new CustomerRepository(context);
+
+            var result = await repository.GetByIdAsync(customer.Id);
+
+            result.Should().NotBeNull();
+            result!.Name.Should().Be("Existing Customer");
+            result.Address.Should().Be("Abu Dhabi");
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Should_Modify_Customer_Details()
+        {
+            var context = CreateDbContext();
+            var customer = new Customer
+            {
+                Id = Guid.NewGuid(),
+                Name = "Original Name",
+                Address = "Sharjah"
+            };
+            context.Customers.Add(customer);
+            await context.SaveChangesAsync();
+
+            var repository = new CustomerRepository(context);
+
+            customer.Name = "Updated Name";
+            customer.Address = "Ajman";
+
+            await repository.UpdateAsync(customer);
+
+            var updated = await context.Customers.FindAsync(customer.Id);
+            updated!.Name.Should().Be("Updated Name");
+            updated.Address.Should().Be("Ajman");
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Should_Remove_Customer_When_Exists()
+        {
+            var context = CreateDbContext();
+            var customer = new Customer
+            {
+                Id = Guid.NewGuid(),
+                Name = "To Be Deleted",
+                Address = "Fujairah"
+            };
+            context.Customers.Add(customer);
+            await context.SaveChangesAsync();
+
+            var repository = new CustomerRepository(context);
+
+            await repository.DeleteAsync(customer);
+
+            var result = await context.Customers.FindAsync(customer.Id);
+            result.Should().BeNull();
+        }
+
     }
 }

@@ -27,5 +27,28 @@ namespace GAC.Integration.API.Controllers
             var id = await _mediator.Send(order);
             return CreatedAtAction(nameof(GetAll), new { id }, id);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _mediator.Send(new GetSalesOrderByIdQuery(id));
+            return result is not null ? Ok(result) : NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateSalesOrderCommand command)
+        {
+            if (id != command.Id) return BadRequest();
+
+            var success = await _mediator.Send(command);
+            return success ? NoContent() : NotFound();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var success = await _mediator.Send(new DeleteSalesOrderCommand(id));
+            return success ? NoContent() : NotFound();
+        }
     }
 }

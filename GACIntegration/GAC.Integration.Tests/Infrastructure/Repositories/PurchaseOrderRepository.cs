@@ -86,5 +86,104 @@ namespace GAC.Integration.Tests.Infrastructure.Repositories
             result.Should().HaveCount(1);
             result[0].Lines.Should().HaveCount(2);
         }
+
+        [Fact]
+        public async Task GetByIdAsync_Should_Return_PurchaseOrder_With_Lines()
+        {
+            var context = CreateDbContext();
+            var id = Guid.NewGuid();
+
+            context.PurchaseOrders.Add(new PurchaseOrder
+            {
+                Id = id,
+                ProcessingDate = DateTime.UtcNow,
+                CustomerId = Guid.NewGuid(),
+                Lines = new List<PurchaseOrderItem>
+                {
+                    new PurchaseOrderItem
+                    {
+                        Id = Guid.NewGuid(),
+                        ProductId = Guid.NewGuid(),
+                        Quantity = 1
+                    }
+                }
+            });
+            await context.SaveChangesAsync();
+
+            var repository = new PurchaseOrderRepository(context);
+            var result = await repository.GetByIdAsync(id);
+
+            result.Should().NotBeNull();
+            result.Id.Should().Be(id);
+            result.Lines.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Should_Update_PurchaseOrder_And_Lines()
+        {
+            var context = CreateDbContext();
+            var id = Guid.NewGuid();
+
+            var po = new PurchaseOrder
+            {
+                Id = id,
+                ProcessingDate = DateTime.UtcNow,
+                CustomerId = Guid.NewGuid(),
+                Lines = new List<PurchaseOrderItem>
+                {
+                    new PurchaseOrderItem
+                    {
+                        Id = Guid.NewGuid(),
+                        ProductId = Guid.NewGuid(),
+                        Quantity = 3
+                    }
+                }
+            };
+
+            context.PurchaseOrders.Add(po);
+            await context.SaveChangesAsync();
+
+            po.ProcessingDate = po.ProcessingDate.AddDays(2);
+            po.Lines[0].Quantity = 10;
+
+            var repository = new PurchaseOrderRepository(context);
+            await repository.UpdateAsync(po);
+
+            var updated = await context.PurchaseOrders.Include(p => p.Lines).FirstOrDefaultAsync(p => p.Id == id);
+            updated.ProcessingDate.Date.Should().Be(po.ProcessingDate.Date);
+            updated.Lines[0].Quantity.Should().Be(10);
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Should_Remove_PurchaseOrder()
+        {
+            var context = CreateDbContext();
+            var id = Guid.NewGuid();
+
+            var po = new PurchaseOrder
+            {
+                Id = id,
+                ProcessingDate = DateTime.UtcNow,
+                CustomerId = Guid.NewGuid(),
+                Lines = new List<PurchaseOrderItem>
+                {
+                    new PurchaseOrderItem
+                    {
+                        Id = Guid.NewGuid(),
+                        ProductId = Guid.NewGuid(),
+                        Quantity = 6
+                    }
+                }
+            };
+
+            context.PurchaseOrders.Add(po);
+            await context.SaveChangesAsync();
+
+            var repository = new PurchaseOrderRepository(context);
+            await repository.DeleteAsync(id);
+
+            var deleted = await context.PurchaseOrders.FindAsync(id);
+            deleted.Should().BeNull();
+        }
     }
 }

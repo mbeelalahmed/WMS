@@ -6,5 +6,8 @@ namespace GAC.Integration.Domain.Interfaces
     {
         Task AddAsync(PurchaseOrder po);
         Task<List<PurchaseOrder>> GetAllAsync();
+        Task<PurchaseOrder?> GetByIdAsync(Guid id);
+        Task UpdateAsync(PurchaseOrder po);
+        Task DeleteAsync(Guid id);
     }
 }

@@ -69,5 +69,78 @@ namespace GAC.Integration.Tests.Infrastructure.Repositories
 
             result.Should().HaveCount(2);
         }
+
+        [Fact]
+        public async Task GetByIdAsync_Should_Return_SalesOrder_When_Exists()
+        {
+            var context = await CreateDbContextAsync();
+            var salesOrder = new SalesOrder
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = Guid.NewGuid(),
+                ProcessingDate = DateTime.UtcNow,
+                ShipmentAddress = "123 Street",
+                Lines = new List<SalesOrderItem>
+        {
+            new SalesOrderItem { Id = Guid.NewGuid(), ProductId = Guid.NewGuid(), Quantity = 1 }
+        }
+            };
+
+            context.SalesOrders.Add(salesOrder);
+            await context.SaveChangesAsync();
+
+            var repository = new SalesOrderRepository(context);
+
+            var result = await repository.GetByIdAsync(salesOrder.Id);
+
+            result.Should().NotBeNull();
+            result.Id.Should().Be(salesOrder.Id);
+            result.ShipmentAddress.Should().Be("123 Street");
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Should_Modify_SalesOrder()
+        {
+            var context = await CreateDbContextAsync();
+            var salesOrder = new SalesOrder
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = Guid.NewGuid(),
+                ProcessingDate = DateTime.UtcNow,
+                ShipmentAddress = "Old Address"
+            };
+            context.SalesOrders.Add(salesOrder);
+            await context.SaveChangesAsync();
+
+            var repository = new SalesOrderRepository(context);
+            salesOrder.ShipmentAddress = "New Address";
+
+            await repository.UpdateAsync(salesOrder);
+            var updated = await context.SalesOrders.FindAsync(salesOrder.Id);
+
+            updated.Should().NotBeNull();
+            updated.ShipmentAddress.Should().Be("New Address");
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Should_Remove_SalesOrder()
+        {
+            var context = await CreateDbContextAsync();
+            var salesOrder = new SalesOrder
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = Guid.NewGuid(),
+                ProcessingDate = DateTime.UtcNow,
+                ShipmentAddress = "To be deleted"
+            };
+            context.SalesOrders.Add(salesOrder);
+            await context.SaveChangesAsync();
+
+            var repository = new SalesOrderRepository(context);
+            await repository.DeleteAsync(salesOrder.Id);
+
+            var deleted = await context.SalesOrders.FindAsync(salesOrder.Id);
+            deleted.Should().BeNull();
+        }
     }
 }

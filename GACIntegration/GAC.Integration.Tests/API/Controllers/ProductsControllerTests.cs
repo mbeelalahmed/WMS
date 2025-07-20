@@ -63,5 +63,149 @@ namespace GAC.Integration.Tests.API.Controllers
 
             _mediatorMock.Verify(m => m.Send(It.IsAny<GetAllProductsQuery>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        [Fact]
+        public async Task GetById_WhenProductExists_ShouldReturnOk_WithProduct()
+        {
+            var productId = Guid.NewGuid();
+            var product = new Product
+            {
+                Id = productId,
+                Code = "Code1",
+                Title = "Title1",
+                Description = "Desc1",
+                Dimensions = "Dim1"
+            };
+
+            _mediatorMock
+                .Setup(m => m.Send(It.Is<GetProductByIdQuery>(q => q.Id == productId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(product);
+
+            var result = await _controller.GetById(productId);
+
+            var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+            okResult.Value.Should().Be(product);
+
+            _mediatorMock.Verify(m => m.Send(It.IsAny<GetProductByIdQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetById_WhenProductDoesNotExist_ShouldReturnNotFound()
+        {
+            var productId = Guid.NewGuid();
+
+            _mediatorMock
+                .Setup(m => m.Send(It.Is<GetProductByIdQuery>(q => q.Id == productId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Product?)null);
+
+            var result = await _controller.GetById(productId);
+
+            result.Result.Should().BeOfType<NotFoundResult>();
+
+            _mediatorMock.Verify(m => m.Send(It.IsAny<GetProductByIdQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Update_WhenIdMismatch_ShouldReturnBadRequest()
+        {
+            var command = new UpdateProductCommand
+            {
+                Id = Guid.NewGuid(),
+                Code = "Code1",
+                Title = "Title1",
+                Description = "Desc1",
+                Dimensions = "Dim1"
+            };
+
+            var differentId = Guid.NewGuid();
+
+            var result = await _controller.Update(differentId, command);
+
+            var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+            badRequestResult.Value.Should().Be("ID mismatch");
+
+            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateProductCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Update_WhenProductExists_ShouldReturnNoContent()
+        {
+            var productId = Guid.NewGuid();
+            var command = new UpdateProductCommand
+            {
+                Id = productId,
+                Code = "Code1",
+                Title = "Title1",
+                Description = "Desc1",
+                Dimensions = "Dim1"
+            };
+
+            _mediatorMock
+                .Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var result = await _controller.Update(productId, command);
+
+            result.Should().BeOfType<NoContentResult>();
+
+            _mediatorMock.Verify(m => m.Send(command, It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Update_WhenProductDoesNotExist_ShouldReturnNotFound()
+        {
+            var productId = Guid.NewGuid();
+            var command = new UpdateProductCommand
+            {
+                Id = productId,
+                Code = "Code1",
+                Title = "Title1",
+                Description = "Desc1",
+                Dimensions = "Dim1"
+            };
+
+            _mediatorMock
+                .Setup(m => m.Send(command, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            var result = await _controller.Update(productId, command);
+
+            result.Should().BeOfType<NotFoundResult>();
+
+            _mediatorMock.Verify(m => m.Send(command, It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_WhenProductExists_ShouldReturnNoContent()
+        {
+            var productId = Guid.NewGuid();
+
+            _mediatorMock
+                .Setup(m => m.Send(It.Is<DeleteProductCommand>(c => c.Id == productId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true);
+
+            var result = await _controller.Delete(productId);
+
+            result.Should().BeOfType<NoContentResult>();
+
+            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteProductCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task Delete_WhenProductDoesNotExist_ShouldReturnNotFound()
+        {
+            var productId = Guid.NewGuid();
+
+            _mediatorMock
+                .Setup(m => m.Send(It.Is<DeleteProductCommand>(c => c.Id == productId), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(false);
+
+            var result = await _controller.Delete(productId);
+
+            result.Should().BeOfType<NotFoundResult>();
+
+            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteProductCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
     }
 }
+

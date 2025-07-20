@@ -26,11 +26,33 @@ namespace GAC.Integration.API.Controllers
             return Ok(id);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var customer = await _mediator.Send(new GetCustomerByIdQuery(id));
+            return customer is null ? NotFound() : Ok(customer);
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<Customer>>> GetAll()
         {
             var result = await _mediator.Send(new GetAllCustomersQuery());
             return Ok(result);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCustomerCommand command)
+        {
+            if (id != command.Id) return BadRequest("Mismatched ID");
+            var success = await _mediator.Send(command);
+            return success ? NoContent() : NotFound();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var success = await _mediator.Send(new DeleteCustomerCommand(id));
+            return success ? NoContent() : NotFound();
         }
     }
 }

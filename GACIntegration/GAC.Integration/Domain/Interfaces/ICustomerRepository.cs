@@ -6,5 +6,8 @@ namespace GAC.Integration.Domain.Interfaces
     {
         Task AddAsync(Customer customer);
         Task<List<Customer>> GetAllAsync();
+        Task<Customer?> GetByIdAsync(Guid id);
+        Task UpdateAsync(Customer customer);
+        Task DeleteAsync(Customer customer);
     }
 }

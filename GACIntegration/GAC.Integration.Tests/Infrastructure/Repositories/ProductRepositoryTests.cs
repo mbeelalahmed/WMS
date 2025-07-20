@@ -77,5 +77,81 @@ namespace GAC.Integration.Tests.Infrastructure.Repositories
             result.Should().Contain(p => p.Title == "Product A");
             result.Should().Contain(p => p.Code == "PRD002");
         }
+
+        [Fact]
+        public async Task GetByIdAsync_Should_Return_Correct_Product()
+        {
+            var context = CreateDbContext();
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Code = "P123",
+                Title = "Test Product",
+                Description = "Sample",
+                Dimensions = "5x5"
+            };
+            context.Products.Add(product);
+            await context.SaveChangesAsync();
+
+            var repository = new ProductRepository(context);
+
+            var result = await repository.GetByIdAsync(product.Id);
+
+            result.Should().NotBeNull();
+            result!.Id.Should().Be(product.Id);
+            result.Title.Should().Be("Test Product");
+        }
+
+        [Fact]
+        public async Task UpdateAsync_Should_Modify_Product_Details()
+        {
+            var context = CreateDbContext();
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Code = "P456",
+                Title = "Old Title",
+                Description = "Old Desc",
+                Dimensions = "1x2"
+            };
+            context.Products.Add(product);
+            await context.SaveChangesAsync();
+
+            var repository = new ProductRepository(context);
+
+            product.Title = "Updated Title";
+            product.Description = "Updated Desc";
+            product.Dimensions = "3x4";
+
+            await repository.UpdateAsync(product);
+
+            var updated = await context.Products.FindAsync(product.Id);
+            updated!.Title.Should().Be("Updated Title");
+            updated.Description.Should().Be("Updated Desc");
+            updated.Dimensions.Should().Be("3x4");
+        }
+
+        [Fact]
+        public async Task DeleteAsync_Should_Remove_Product_From_Database()
+        {
+            var context = CreateDbContext();
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Code = "P999",
+                Title = "To Delete",
+                Description = "Delete me",
+                Dimensions = "1x1"
+            };
+            context.Products.Add(product);
+            await context.SaveChangesAsync();
+
+            var repository = new ProductRepository(context);
+
+            await repository.DeleteAsync(product.Id);
+
+            var result = await context.Products.FindAsync(product.Id);
+            result.Should().BeNull();
+        }
     }
 }
