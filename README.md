@@ -1,4 +1,6 @@
-## WMS Overview
+# WMS 
+
+## Overview
 
 This is a .NET Core Web API for integrating with the GAC Warehouse Management System (WMS).
 The solution is built using Clean Architecture, MediatR, and minimal dependencies, ensuring separation of concerns and high testability.
@@ -24,11 +26,11 @@ LegacyFilePollingJob is a .NET background service that periodically scans a fold
 
 ## Configuration
 
-All settings are defined in `appsettings.json` under the `Polling` section:
+All settings are defined in `appsettings.json` under the `FileIntegration` section:
 
 ```json
 {
-  "Polling": {
+  "FileIntegration": {
     "InputFolderPath": "<give address of file location>",
     "PollingCronExpression": "*/10 * * * * *",
     "WmsBaseUrl": "https://localhost:7016",
