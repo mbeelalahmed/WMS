@@ -54,7 +54,7 @@ namespace GAC.Integration.Application.Handler
                 Id = Guid.NewGuid(),
                 ProcessingDate = request.ProcessingDate,
                 CustomerId = request.CustomerId,
-                Lines = request.Lines.Select(l => new PurchaseOrderLine { Id = Guid.NewGuid(), ProductId = l.ProductId, Quantity = l.Quantity }).ToList()
+                Lines = request.Lines.Select(l => new PurchaseOrderItem { Id = Guid.NewGuid(), ProductId = l.ProductId, Quantity = l.Quantity }).ToList()
             };
             await _repo.AddAsync(po);
             return po.Id;
@@ -75,7 +75,7 @@ namespace GAC.Integration.Application.Handler
                 ProcessingDate = request.ProcessingDate,
                 ShipmentAddress = request.ShipmentAddress,
                 CustomerId = request.CustomerId,
-                Lines = request.Lines.Select(l => new SalesOrderLine { Id = Guid.NewGuid(), ProductId = l.ProductId, Quantity = l.Quantity }).ToList()
+                Lines = request.Lines.Select(l => new SalesOrderItem { Id = Guid.NewGuid(), ProductId = l.ProductId, Quantity = l.Quantity }).ToList()
             };
             await _repo.AddAsync(so);
             return so.Id;
@@ -115,7 +115,6 @@ namespace GAC.Integration.Application.Handler
         }
 
     }
-
 
     public class GetAllSalesOrdersHandler : IRequestHandler<GetAllSalesOrdersQuery, List<SalesOrder>>
     {

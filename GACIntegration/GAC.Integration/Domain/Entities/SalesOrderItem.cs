@@ -1,6 +1,6 @@
 ﻿namespace GAC.Integration.Domain.Entities
 {
-    public class PurchaseOrderLine
+    public class SalesOrderItem
     {
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }

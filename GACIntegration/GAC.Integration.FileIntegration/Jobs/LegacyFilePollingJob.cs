@@ -107,7 +107,7 @@ namespace GAC.Integration.FileIntegration.Jobs
                 await _wmsPusher.PushToWmsAsync(order);
             }
             var processedPath = file + ".processed";
-            //File.Move(file, processedPath);
+            File.Move(file, processedPath);
             Console.WriteLine($"Moved file to: {processedPath}");
         }
 

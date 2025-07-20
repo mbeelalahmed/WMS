@@ -22,4 +22,25 @@ namespace GAC.Integration.Application.Validators
             RuleFor(x => x.Address).NotEmpty();
         }
     }
-}
+
+    public class CreatePurchaseOrderCommandValidator : AbstractValidator<CreatePurchaseOrderCommand>
+    {
+        public CreatePurchaseOrderCommandValidator()
+        {
+            RuleFor(x => x.ProcessingDate).NotEmpty();
+            RuleFor(x => x.Lines).NotEmpty();
+            RuleFor(x => x.CustomerId).NotEmpty();
+        }
+    }
+
+    public class CreateSalesOrderCommandValidator : AbstractValidator<CreateSalesOrderCommand>
+    {
+        public CreateSalesOrderCommandValidator()
+        {
+            RuleFor(x => x.ProcessingDate).NotEmpty();
+            RuleFor(x => x.ShipmentAddress).NotEmpty();
+            RuleFor(x => x.CustomerId).NotEmpty();
+            RuleFor(x => x.Lines).NotEmpty();
+        }
+    }
+}   

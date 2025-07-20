@@ -6,6 +6,6 @@
         public DateTime ProcessingDate { get; set; }
         public string ShipmentAddress { get; set; } = string.Empty;
         public Guid CustomerId { get; set; }
-        public List<SalesOrderLine> Lines { get; set; } = new();
+        public List<SalesOrderItem> Lines { get; set; } = new();
     }
 }

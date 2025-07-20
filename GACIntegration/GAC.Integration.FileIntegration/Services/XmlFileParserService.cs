@@ -1,9 +1,4 @@
 ﻿using GAC.Integration.FileIntegration.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace GAC.Integration.FileIntegration.Services
@@ -17,13 +12,11 @@ namespace GAC.Integration.FileIntegration.Services
 
             foreach (var order in doc.Descendants("PurchaseOrder"))
             {
-                // Parse OrderId and CustomerId as Guid
                 if (!Guid.TryParse(order.Element("OrderId")?.Value, out var orderId))
-                    continue; // skip malformed
+                    continue; 
                 if (!Guid.TryParse(order.Element("Customer")?.Value, out var customerId))
                     continue;
 
-                // Parse date
                 var processingDateString = order.Element("ProcessingDate")?.Value;
                 var processingDate = DateTime.TryParse(processingDateString, out var dt)
                     ? dt
@@ -36,7 +29,6 @@ namespace GAC.Integration.FileIntegration.Services
                     ProcessingDate = processingDate
                 };
 
-                // Parse product lines
                 foreach (var product in order.Descendants("Product"))
                 {
                     if (!Guid.TryParse(product.Element("Key")?.Value, out var productId))
